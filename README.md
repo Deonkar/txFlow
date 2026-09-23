@@ -2,6 +2,12 @@
 
 TxFlow is an event-driven payments workflow: a `POST /payment` request produces one Kafka event, and multiple independent consumer groups process it (fraud, wallet, notifications, audit, analytics) with retries, deduplication, and a DLQ.
 
+## Architecture
+
+![TxFlow architecture](docs/architecture.svg)
+
+Each consumer group owns its own offset, so a failure in one never blocks the other four. Retries are per-consumer, deduplication is a Redis key, and anything still failing is parked in the DLQ for the handler service to inspect or replay.
+
 ## Backend (what’s used)
 - **Kafka**: Redpanda + Redpanda Console UI
 - **API**: FastAPI (Python)
